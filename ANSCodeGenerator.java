@@ -12,6 +12,8 @@ public class ANSCodeGenerator {
 
     public static String generate (final String[] tokens) {
         final StringBuilder printOut = new StringBuilder();
+        // dependencies
+        printOut.append("import net.ddp2p.ASN1.*;");
         // instantiate
         printOut.append(String.format("public class %s extends ASNObjArrayable {\n", tokens[0]));
         // define the Application 0 byte ahead of time. The CC2 tag is unused in both messages, so I will omit it for brevity.
@@ -48,21 +50,25 @@ public class ANSCodeGenerator {
                    if (d.getTypeByte() != 0) throw new ASN1DecoderFail("Extra objects!");
                    return this;
                   }""");
+        printOut.append("}"); // end the class
         return printOut.toString();
     }
 
     public static void main (final String[] args) throws IOException {
         final Scanner input = new Scanner(System.in);
         while (input.hasNextLine()) {
-            final String[] tokens = input.nextLine().split(" ");
+            String test = input.nextLine();
+            final String[] tokens = test.split(" ");
             if (tokens[0].equals("I2Message") || tokens[0].equals("E3Message")) {
                 final String result = generate(tokens);
-                FileWriter output = new FileWriter(String.format("Generated%.java", tokens[0]));
+                FileWriter output = new FileWriter(String.format("Generated%s.java", tokens[0]));
+                System.out.println(result);
                 output.write(result);
+                output.close();
 
             } else {
                 // fail fast I guess, but there's no possibility in the given input space for this.
-                System.out.println("Error: Unacceptable type");
+                System.out.println("Error: Unacceptable type: " + test);
                 System.exit(1);
             }
 
